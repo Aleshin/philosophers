@@ -37,18 +37,19 @@ typedef struct args
 	long long		start_time;
 	int				number_of_times_each_philosopher_must_eat;
 	int				end;
-	pthread_mutex_t	*mutex;
+//	pthread_mutex_t	*mutex;
 //	pthread_t	*threads;
 }	t_args;
 
 typedef struct philo
 {
-	int			id;
-	int			fork;
-	long long	timer_life;
-	long long	timer_current;
-	int			status;
-	int			eat_count;
-	t_args		*args;
+	int				id;
+	int				fork;
+	pthread_mutex_t	mutex;
+	long long		timer_life;
+	long long		timer_current;
+	int				status;
+	int				eat_count;
+	t_args			*args;
 }	t_philo;
 #endif
