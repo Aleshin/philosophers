@@ -33,7 +33,7 @@ void	*philosopher_routine(void *data)
 	printf("%lld %d is thinking\n", f_time(philo->args->start_time), philo->id);
 	while (1)
 	{
-	printf("%lld %d 1. Thread start\n", f_time(philo->args->start_time), philo->id);
+//	printf("%lld %d 1. Thread start\n", f_time(philo->args->start_time), philo->id);
 		pthread_mutex_lock(&philo->args->mutex[philo->id - 1]);
 		if (philo->args->end == 1)
 		{
@@ -43,7 +43,7 @@ void	*philosopher_routine(void *data)
 //		pthread_mutex_unlock(&philo->args->mutex[philo->id - 1]);
 //		pthread_mutex_lock(&philo->args->mutex[philo->id - 1]);
 		if (f_time(philo->args->start_time) - philo->timer_life
-			> philo->args->time_to_die)
+			>= philo->args->time_to_die)
 		{
 			philo->status = DEAD;
 			philo->args->end = 1;
@@ -52,11 +52,11 @@ void	*philosopher_routine(void *data)
 			return (NULL);
 		}
 		pthread_mutex_unlock(&philo->args->mutex[philo->id - 1]);
-	printf("%lld %d 2. Dead check pass\n", f_time(philo->args->start_time), philo->id);
+//	printf("%lld %d 2. Dead check pass\n", f_time(philo->args->start_time), philo->id);
 		pthread_mutex_lock(&philo->args->mutex[philo->id - 1]);
 		if (philo->status == EATING
 			&& (f_time(philo->args->start_time) - philo->timer_current
-				> philo->args->time_to_eat))
+				>= philo->args->time_to_eat))
 		{
 			philo->status = SLEEPING;
 			philo->timer_current = f_time(philo->args->start_time);
@@ -69,23 +69,21 @@ void	*philosopher_routine(void *data)
 				pthread_mutex_unlock(&philo->args->mutex[philo->id - 1]);
 				return (NULL);
 			}
-			printf("%lld %d is sleeping\n",
-				f_time(philo->args->start_time), philo->id);
+			printf("%lld %d is sleeping\n", philo->timer_current, philo->id);
 		}
 		pthread_mutex_unlock(&philo->args->mutex[philo->id - 1]);
-	printf("%lld %d 3. Eat check pass\n", f_time(philo->args->start_time), philo->id);
+//	printf("%lld %d 3. Eat check pass\n", f_time(philo->args->start_time), philo->id);
 		pthread_mutex_lock(&philo->args->mutex[philo->id - 1]);
 		if (philo->status == SLEEPING
 			&& f_time(philo->args->start_time) - philo->timer_current
-			> philo->args->time_to_sleep)
+			>= philo->args->time_to_sleep)
 		{
 			philo->status = THINKING;
 			philo->timer_current = f_time(philo->args->start_time);
-			printf("%lld %d is thinking\n",
-				f_time(philo->args->start_time), philo->id);
+			printf("%lld %d is thinking\n", philo->timer_current, philo->id);
 		}
 		pthread_mutex_unlock(&philo->args->mutex[philo->id - 1]);
-	printf("%lld %d 4. Sleep check pass\n", f_time(philo->args->start_time), philo->id);
+//	printf("%lld %d 4. Sleep check pass\n", f_time(philo->args->start_time), philo->id);
 		pthread_mutex_lock(&philo->args->mutex[philo->id - 1]);
 		if (philo->status == THINKING)
 //			&& f_time(philo->args->start_time) - philo->timer_current > 1)
@@ -100,16 +98,17 @@ void	*philosopher_routine(void *data)
 			}
 		}
 		pthread_mutex_unlock(&philo->args->mutex[philo->id - 1]);
-	printf("%lld %d 5. Think check pass\n", f_time(philo->args->start_time), philo->id);
+//	printf("%lld %d 5. Think check pass\n", f_time(philo->args->start_time), philo->id);
+		pthread_mutex_lock(&philo->args->mutex[philo->id - 1]);
 		if (philo->status == TAKEN_FORK)
 		{
 			philo->status = EATING;
 			philo->timer_current = f_time(philo->args->start_time);
-			philo->timer_life = f_time(philo->args->start_time);
-			printf("%lld %d is eating\n",
-				f_time(philo->args->start_time), philo->id);
+			philo->timer_life = philo->timer_current;
+			printf("%lld %d is eating\n", philo->timer_current, philo->id);
 		}
-	printf("%lld %d 6. Take forks check pass\n", f_time(philo->args->start_time), philo->id);
+		pthread_mutex_unlock(&philo->args->mutex[philo->id - 1]);
+//	printf("%lld %d 6. Take forks check pass\n", f_time(philo->args->start_time), philo->id);
 	}
 	return (NULL);
 }
