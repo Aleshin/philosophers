@@ -37,7 +37,7 @@ typedef struct args
 	long long		start_time;
 	int				number_of_times_each_philosopher_must_eat;
 	int				end;
-	pthread_mutex_t	mutex;
+	pthread_mutex_t	*mutex;
 //	pthread_t	*threads;
 }	t_args;
 
