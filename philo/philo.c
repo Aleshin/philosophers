@@ -33,30 +33,22 @@ void	*philosopher_routine(void *data)
 	printf("%lld %d is thinking\n", f_time(philo->args->start_time), philo->id);
 	while (1)
 	{
-//	printf("%lld %d 1. Thread start\n", f_time(philo->args->start_time), philo->id);
-		pthread_mutex_lock(&philo->mutex);
-		pthread_mutex_lock(&next_philo->mutex);
+		pthread_mutex_lock(&philo->args->mutex_global);
 		if (philo->args->end == 1)
 		{
-			pthread_mutex_unlock(&next_philo->mutex);
-			pthread_mutex_unlock(&philo->mutex);
+			pthread_mutex_unlock(&philo->args->mutex_global);
 			return (NULL);
 		}
-//		pthread_mutex_unlock(&philo->args->mutex[philo->id - 1]);
-//		pthread_mutex_lock(&philo->args->mutex[philo->id - 1]);
 		if (f_time(philo->args->start_time) - philo->timer_life
 			>= philo->args->time_to_die)
 		{
 			philo->status = DEAD;
 			philo->args->end = 1;
 			printf("%lld %d died\n", f_time(philo->args->start_time), philo->id);
-			pthread_mutex_unlock(&next_philo->mutex);
-			pthread_mutex_unlock(&philo->mutex);
+			pthread_mutex_unlock(&philo->args->mutex_global);
 			return (NULL);
 		}
-		pthread_mutex_unlock(&next_philo->mutex);
-		pthread_mutex_unlock(&philo->mutex);
-//	printf("%lld %d 2. Dead check pass\n", f_time(philo->args->start_time), philo->id);
+		pthread_mutex_unlock(&philo->args->mutex_global);
 		pthread_mutex_lock(&philo->mutex);
 		pthread_mutex_lock(&next_philo->mutex);
 		if (philo->status == EATING
@@ -71,17 +63,12 @@ void	*philosopher_routine(void *data)
 			if (philo->eat_count
 				== philo->args->number_of_times_each_philosopher_must_eat)
 			{
-				pthread_mutex_unlock(&next_philo->mutex);
-				pthread_mutex_unlock(&philo->mutex);
 				return (NULL);
 			}
 			printf("%lld %d is sleeping\n", philo->timer_current, philo->id);
 		}
 		pthread_mutex_unlock(&next_philo->mutex);
 		pthread_mutex_unlock(&philo->mutex);
-//	printf("%lld %d 3. Eat check pass\n", f_time(philo->args->start_time), philo->id);
-//		pthread_mutex_lock(&philo->mutex);
-//		pthread_mutex_lock(&next_philo->mutex);
 		if (philo->status == SLEEPING
 			&& f_time(philo->args->start_time) - philo->timer_current
 			>= philo->args->time_to_sleep)
@@ -90,13 +77,9 @@ void	*philosopher_routine(void *data)
 			philo->timer_current = f_time(philo->args->start_time);
 			printf("%lld %d is thinking\n", philo->timer_current, philo->id);
 		}
-//		pthread_mutex_unlock(&next_philo->mutex);
-//		pthread_mutex_unlock(&philo->mutex);
-//	printf("%lld %d 4. Sleep check pass\n", f_time(philo->args->start_time), philo->id);
 		pthread_mutex_lock(&philo->mutex);
 		pthread_mutex_lock(&next_philo->mutex);
 		if (philo->status == THINKING)
-//			&& f_time(philo->args->start_time) - philo->timer_current > 1)
 		{
 			if (philo->fork == 0 && next_philo->fork == 0)
 			{
@@ -109,9 +92,6 @@ void	*philosopher_routine(void *data)
 		}
 		pthread_mutex_unlock(&next_philo->mutex);
 		pthread_mutex_unlock(&philo->mutex);
-//	printf("%lld %d 5. Think check pass\n", f_time(philo->args->start_time), philo->id);
-//		pthread_mutex_lock(&philo->mutex);
-//		pthread_mutex_lock(&next_philo->mutex);
 		if (philo->status == TAKEN_FORK)
 		{
 			philo->status = EATING;
@@ -119,9 +99,6 @@ void	*philosopher_routine(void *data)
 			philo->timer_life = philo->timer_current;
 			printf("%lld %d is eating\n", philo->timer_current, philo->id);
 		}
-//		pthread_mutex_unlock(&next_philo->mutex);
-//		pthread_mutex_unlock(&philo->mutex);
-//	printf("%lld %d 6. Take forks check pass\n", f_time(philo->args->start_time), philo->id);
 	}
 	return (NULL);
 }
@@ -154,15 +131,9 @@ int	main(int argc, char **argv)
 	args->start_time = 0;
 	args->start_time = f_time(args->start_time);
 	args->number_of_times_each_philosopher_must_eat = 0;
+	pthread_mutex_init(&args->mutex_global, NULL);
 	if (argc == 6)
 		args->number_of_times_each_philosopher_must_eat = atoi(argv[5]);
-/*
-	if (args->number_of_times_each_philosopher_must_eat < 1)
-	{
-//		printf("Error: wrong arguments\n");
-		return 1;
-	}
-*/
 	i = 0;
 	while (i < args->number_of_philosophers)
 	{
@@ -172,7 +143,7 @@ int	main(int argc, char **argv)
 			= f_time(args->start_time);
 		philosophers[i].timer_current = philosophers[i].timer_life;
 		philosophers[i].status = THINKING;
-//		philosophers[i].fork = i + 1;
+		philosophers[i].fork = i + 1;
 		philosophers[i].args = args;
 		pthread_create(&threads[i], NULL, philosopher_routine,
 			&philosophers[i]);
@@ -181,9 +152,11 @@ int	main(int argc, char **argv)
 	i = 0;
 	while (i < args->number_of_philosophers)
 	{
-		pthread_join(threads[i++], NULL);
+		pthread_join(threads[i], NULL);
 		pthread_mutex_destroy(&philosophers[i].mutex);
+		i++;
 	}
+	pthread_mutex_destroy(&args->mutex_global);
 	free(philosophers);
 	free(threads);
 	free(args);
