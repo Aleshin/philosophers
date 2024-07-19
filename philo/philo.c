@@ -63,6 +63,8 @@ void	*philosopher_routine(void *data)
 			if (philo->eat_count
 				== philo->args->number_of_times_each_philosopher_must_eat)
 			{
+				pthread_mutex_unlock(&next_philo->mutex);
+				pthread_mutex_unlock(&philo->mutex);
 				return (NULL);
 			}
 			printf("%lld %d is sleeping\n", philo->timer_current, philo->id);
