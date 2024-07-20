@@ -29,7 +29,7 @@ void	*philosopher_routine(void *data)
 	if (philo->id == philo->args->number_of_philosophers)
 		next_philo = (philo - philo->args->number_of_philosophers + 1);
 	else
-	next_philo = (philo + 1);
+		next_philo = (philo + 1);
 	printf("%lld %d is thinking\n", f_time(philo->args->start_time), philo->id);
 	while (1)
 	{
@@ -139,14 +139,20 @@ int	main(int argc, char **argv)
 	i = 0;
 	while (i < args->number_of_philosophers)
 	{
-		pthread_mutex_init(&philosophers[i].mutex, NULL);
 		philosophers[i].id = i + 1;
+		philosophers[i].status = THINKING;
+		philosophers[i].args = args;
+		philosophers[i].eat_count = 0;
+		pthread_mutex_init(&philosophers[i].mutex, NULL);
+		philosophers[i].fork = 0;
+		i++;
+	}
+	i = 0;
+	while (i < args->number_of_philosophers)
+	{
 		philosophers[i].timer_life
 			= f_time(args->start_time);
 		philosophers[i].timer_current = philosophers[i].timer_life;
-		philosophers[i].status = THINKING;
-		philosophers[i].fork = i + 1;
-		philosophers[i].args = args;
 		pthread_create(&threads[i], NULL, philosopher_routine,
 			&philosophers[i]);
 		i++;
