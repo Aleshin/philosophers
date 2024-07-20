@@ -49,8 +49,11 @@ void	*philosopher_routine(void *data)
 			return (NULL);
 		}
 		pthread_mutex_unlock(&philo->args->mutex_global);
+		if (philo->id % 2 == 0)
+		{
+			pthread_mutex_lock(&next_philo->mutex);			
+		}
 		pthread_mutex_lock(&philo->mutex);
-		pthread_mutex_lock(&next_philo->mutex);
 		if (philo->status == EATING
 			&& (f_time(philo->args->start_time) - philo->timer_current
 				>= philo->args->time_to_eat))
@@ -81,6 +84,24 @@ void	*philosopher_routine(void *data)
 		}
 		pthread_mutex_lock(&philo->mutex);
 		pthread_mutex_lock(&next_philo->mutex);
+		if (philo->id % 2 == 0)
+		{
+			pthread_mutex_lock(&next_philo->mutex);
+			if (next_philo->fork == 0)
+			{
+				pthread_mutex_lock(&philo->mutex);
+				if (philo->fork == 0)
+				{
+					philo->fork = philo->id;
+					next_philo->fork = philo->id;
+					philo->status = TAKEN_FORK;
+					printf("%lld %d has taken a fork\n",
+						f_time(philo->args->start_time), philo->id);
+				}
+				pthread_mutex_unlock(&philo->mutex);
+			}
+		}
+
 		if (philo->status == THINKING)
 		{
 			if (philo->fork == 0 && next_philo->fork == 0)
