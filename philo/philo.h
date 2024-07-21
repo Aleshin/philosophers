@@ -52,4 +52,13 @@ typedef struct philo
 	int				eat_count;
 	t_args			*args;
 }	t_philo;
+
+long long	f_time(long long start_time);
+int	take_forks(t_philo *philo, t_philo *next_philo);
+int	free_forks(t_philo *philo, t_philo *next_philo);
+int	check_dead(t_philo *philo);
+int	check_taken_fork(t_philo *philo);
+int	check_eating(t_philo *philo, t_philo *next_philo);
+int	check_sleeping(t_philo *philo);
+
 #endif

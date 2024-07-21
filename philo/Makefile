@@ -1,11 +1,11 @@
-CC = cc
+CC = gcc -pthread -fsanitize=thread -g
 CFLAGS = -Wall -Wextra -Werror
 RM = rm -f
 
 NAME = philo
 HEADER = philo.h
 
-SRCS =	philo.c
+SRCS =	philo.c take_forks.c check_status.c
 
 OBJS = $(SRCS:.c=.o)
 
