@@ -31,7 +31,6 @@ void	*philosopher_routine(void *data)
 	else
 		next_philo = (philo + 1);
 	printf("%lld %d is thinking\n", f_time(philo->args->start_time), philo->id);
-//	usleep(10);
 	while (1)
 	{
 		if (check_dead(philo))
@@ -53,49 +52,15 @@ int	main(int argc, char **argv)
 	int			i;
 
 	args = malloc(sizeof(t_args));
-	if (argc != 5 && argc != 6)
+	if (init_args(argc, argv, args))
 	{
-		printf("Need arguments:\n"
-			"number_of_philosophers\n"
-			"time_to_die\n"
-			"time_to_eat\n"
-			"time_to_sleep\n"
-			"<number_of_times_each_philosopher_must_eat>\n");
 		free(args);
 		return (1);
 	}
-	args->number_of_philosophers = atoi(argv[1]);
 	philosophers = malloc(args->number_of_philosophers * sizeof(t_philo));
+	init_philo(philosophers, args);
 	threads = malloc(args->number_of_philosophers * sizeof(pthread_t));
-	args->time_to_die = atoi(argv[2]);
-	args->time_to_eat = atoi(argv[3]);
-	args->time_to_sleep = atoi(argv[4]);
-	args->start_time = 0;
-	args->start_time = f_time(args->start_time);
-	args->number_of_times_each_philosopher_must_eat = 0;
-	pthread_mutex_init(&args->mutex_global, NULL);
-	if (argc == 6)
-		args->number_of_times_each_philosopher_must_eat = atoi(argv[5]);
-	i = 0;
-	while (i < args->number_of_philosophers)
-	{
-		philosophers[i].id = i + 1;
-		philosophers[i].status = THINKING;
-		philosophers[i].args = args;
-		philosophers[i].eat_count = 0;
-		pthread_mutex_init(&philosophers[i].fork, NULL);
-		i++;
-	}
-	i = 0;
-	while (i < args->number_of_philosophers)
-	{
-		philosophers[i].timer_life
-			= f_time(args->start_time);
-		philosophers[i].timer_current = philosophers[i].timer_life;
-		pthread_create(&threads[i], NULL, philosopher_routine,
-			&philosophers[i]);
-		i++;
-	}
+	init_threads(philosophers, threads, args);
 	i = 0;
 	while (i < args->number_of_philosophers)
 	{

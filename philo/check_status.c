@@ -14,23 +14,17 @@
 
 int	check_dead(t_philo *philo)
 {
-//	pthread_mutex_lock(&philo->args->mutex_global);
 	if (philo->args->end > 0)
-	{
-//		pthread_mutex_unlock(&philo->args->mutex_global);
 		return (1);
-	}
 	if (philo->status != DEAD
 		&& f_time(philo->args->start_time) - philo->timer_life
-			>= philo->args->time_to_die)
+		>= philo->args->time_to_die)
 	{
 		philo->args->end++;
 		philo->status = DEAD;
 		printf("%lld %d died\n", f_time(philo->args->start_time), philo->id);
-//		pthread_mutex_unlock(&philo->args->mutex_global);
 		return (1);
 	}
-//	pthread_mutex_unlock(&philo->args->mutex_global);
 	return (0);
 }
 
