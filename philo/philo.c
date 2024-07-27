@@ -31,7 +31,7 @@ void	*philosopher_routine(void *data)
 	else
 		next_philo = (philo + 1);
 	printf("%lld %d is thinking\n", f_time(philo->args->start_time), philo->id);
-	usleep(10);
+//	usleep(10);
 	while (1)
 	{
 		if (check_dead(philo))
@@ -83,8 +83,7 @@ int	main(int argc, char **argv)
 		philosophers[i].status = THINKING;
 		philosophers[i].args = args;
 		philosophers[i].eat_count = 0;
-		pthread_mutex_init(&philosophers[i].mutex, NULL);
-		philosophers[i].fork = 0;
+		pthread_mutex_init(&philosophers[i].fork, NULL);
 		i++;
 	}
 	i = 0;
@@ -101,7 +100,7 @@ int	main(int argc, char **argv)
 	while (i < args->number_of_philosophers)
 	{
 		pthread_join(threads[i], NULL);
-		pthread_mutex_destroy(&philosophers[i].mutex);
+		pthread_mutex_destroy(&philosophers[i].fork);
 		i++;
 	}
 	printf("%d philosophers died\n", args->end);
