@@ -43,7 +43,8 @@ typedef struct args
 typedef struct philo
 {
 	int				id;
-	pthread_mutex_t	fork;
+	int				fork;
+	pthread_mutex_t	fork_mutex;
 	long long		timer_life;
 	long long		timer_current;
 	int				status;

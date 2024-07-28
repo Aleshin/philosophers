@@ -65,7 +65,7 @@ int	main(int argc, char **argv)
 	while (i < args->number_of_philosophers)
 	{
 		pthread_join(threads[i], NULL);
-		pthread_mutex_destroy(&philosophers[i].fork);
+		pthread_mutex_destroy(&philosophers[i].fork_mutex);
 		i++;
 	}
 	printf("%d philosophers died\n", args->end);

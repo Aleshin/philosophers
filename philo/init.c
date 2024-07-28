@@ -46,9 +46,10 @@ int	init_philo(t_philo *philosophers, t_args *args)
 	{
 		philosophers[i].id = i + 1;
 		philosophers[i].status = THINKING;
+		philosophers[i].fork = 0;
 		philosophers[i].args = args;
 		philosophers[i].eat_count = 0;
-		pthread_mutex_init(&philosophers[i].fork, NULL);
+		pthread_mutex_init(&philosophers[i].fork_mutex, NULL);
 		i++;
 	}
 	return (0);
