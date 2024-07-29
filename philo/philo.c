@@ -33,7 +33,7 @@ void	*philosopher_routine(void *data)
 	printf("%lld %d is thinking\n", f_time(philo->args->start_time), philo->id);
 	while (1)
 	{
-		if (check_dead(philo))
+		if (check_end(philo))
 			return (NULL);
 		take_forks(philo, next_philo);
 		check_taken_fork(philo);
@@ -47,31 +47,37 @@ void	*philosopher_routine(void *data)
 int	main(int argc, char **argv)
 {
 	t_philo		*philosophers;
-	pthread_t	*threads;
-	t_args		*args;
-	int			i;
+//	pthread_t	*threads;
+//	pthread_t	*thread_monitor;
+	t_args		args;
+//	int			i;
 
-	args = malloc(sizeof(t_args));
-	if (init_args(argc, argv, args))
-	{
-		free(args);
+	if (init_args(argc, argv, &args))
 		return (1);
-	}
-	philosophers = malloc(args->number_of_philosophers * sizeof(t_philo));
-	init_philo(philosophers, args);
+	printf("%d\n", args.number_of_philosophers);
+	philosophers = malloc(args.number_of_philosophers * sizeof(t_philo));
+	if (philosophers)
+		return (1);
+	init_philo(&philosophers, &args);
+	printf("%d\n", philosophers->args->number_of_philosophers);
+/*
 	threads = malloc(args->number_of_philosophers * sizeof(pthread_t));
-	init_threads(philosophers, threads, args);
+	thread_monitor = malloc(sizeof(pthread_t));
+	pthread_create(thread_monitor, NULL, monitor, &philosophers);
+	init_threads(philosophers);
 	i = 0;
 	while (i < args->number_of_philosophers)
 	{
 		pthread_join(threads[i], NULL);
-		pthread_mutex_destroy(&philosophers[i].fork_mutex);
+		pthread_mutex_destroy(&philosophers[i].mutex_philo);
 		i++;
 	}
 	printf("%d philosophers died\n", args->end);
-	pthread_mutex_destroy(&args->mutex_global);
+	pthread_join(*thread_monitor, NULL);
+//	pthread_mutex_destroy(&args->mutex_global);
 	free(philosophers);
 	free(threads);
-	free(args);
+//	free(thread_monitor);
+*/
 	return (0);
 }

@@ -31,40 +31,40 @@ int	init_args(int argc, char **argv, t_args *args)
 	args->start_time = 0;
 	args->start_time = f_time(args->start_time);
 	args->number_of_times_each_philosopher_must_eat = 0;
-	pthread_mutex_init(&args->mutex_global, NULL);
+//	pthread_mutex_init(&args->mutex_global, NULL);
 	if (argc == 6)
 		args->number_of_times_each_philosopher_must_eat = atoi(argv[5]);
 	return (0);
 }
 
-int	init_philo(t_philo *philosophers, t_args *args)
+int	init_philo(t_philo **philosophers, t_args *args)
 {
 	int	i;
 
 	i = 0;
 	while (i < args->number_of_philosophers)
 	{
-		philosophers[i].id = i + 1;
-		philosophers[i].status = THINKING;
-		philosophers[i].fork = 0;
-		philosophers[i].args = args;
-		philosophers[i].eat_count = 0;
-		pthread_mutex_init(&philosophers[i].fork_mutex, NULL);
+		philosophers[i]->id = i + 1;
+		philosophers[i]->status = THINKING;
+		philosophers[i]->fork = 0;
+		philosophers[i]->args = args;
+		philosophers[i]->eat_count = 0;
+		pthread_mutex_init(&philosophers[i]->mutex_philo, NULL);
 		i++;
 	}
 	return (0);
 }
 
-int	init_threads(t_philo *philosophers, pthread_t *threads, t_args *args)
+int	init_threads(t_philo *philosophers)
 {
 	int	i;
 
 	i = 0;
-	while (i < args->number_of_philosophers)
+	while (i < philosophers->args->number_of_philosophers)
 	{
-		philosophers[i].timer_life = f_time(args->start_time);
+		philosophers[i].timer_life = f_time(philosophers->args->start_time);
 		philosophers[i].timer_current = philosophers[i].timer_life;
-		pthread_create(&threads[i], NULL, philosopher_routine, &philosophers[i]);
+		pthread_create(philosophers[i].thread_philo, NULL, philosopher_routine, &philosophers[i]);
 		i++;
 	}
 	return (0);

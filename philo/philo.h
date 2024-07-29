@@ -37,14 +37,16 @@ typedef struct args
 	long long		start_time;
 	int				number_of_times_each_philosopher_must_eat;
 	int				end;
-	pthread_mutex_t	mutex_global;
+	pthread_t		*thread_monitor;
+	pthread_mutex_t	mutex_monitor;
 }	t_args;
 
 typedef struct philo
 {
 	int				id;
 	int				fork;
-	pthread_mutex_t	fork_mutex;
+	pthread_t		*thread_philo;
+	pthread_mutex_t	mutex_philo;
 	long long		timer_life;
 	long long		timer_current;
 	int				status;
@@ -54,14 +56,14 @@ typedef struct philo
 
 long long	f_time(long long start_time);
 int			init_args(int argc, char **argv, t_args *args);
-int			init_philo(t_philo *philosophers, t_args *args);
-int			init_threads(t_philo *philosophers,
-				pthread_t *threads, t_args *args);
+int			init_philo(t_philo **philosophers, t_args *args);
+int			init_threads(t_philo *philosophers);
 int			take_forks(t_philo *philo, t_philo *next_philo);
-int			check_dead(t_philo *philo);
+int			check_end(t_philo *philo);
 int			check_taken_fork(t_philo *philo);
 int			check_eating(t_philo *philo, t_philo *next_philo);
 int			check_sleeping(t_philo *philo);
 void		*philosopher_routine(void *data);
+void		*monitor(void *data);
 
 #endif
