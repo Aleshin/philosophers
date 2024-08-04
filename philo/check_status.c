@@ -12,19 +12,17 @@
 
 #include "philo.h"
 
-int	check_dead(t_philo *philo)
+int	check_end(t_philo *philo)
 {
+	pthread_mutex_lock(&philo->args->mutex_global);
 	if (philo->args->end > 0)
-		return (1);
-	if (philo->status != DEAD
-		&& f_time(philo->args->start_time) - philo->timer_life
-		>= philo->args->time_to_die)
 	{
-		philo->args->end++;
-		philo->status = DEAD;
-		printf("%lld %d died\n", f_time(philo->args->start_time), philo->id);
+		pthread_mutex_unlock(&philo->args->mutex_global);
+		if (philo->status == EATING)
+			free_forks(philo, philo);
 		return (1);
 	}
+	pthread_mutex_unlock(&philo->args->mutex_global);
 	return (0);
 }
 
@@ -35,20 +33,20 @@ int	take_forks(t_philo *philo, t_philo *next_philo)
 		if (philo->id % 2 == 0)
 		{
 			pthread_mutex_lock(&next_philo->fork);
-			printf("%lld %d has taken a fork\n",
-				f_time(philo->args->start_time), philo->id);
+			if (print_status(philo, "has taken a fork"))
+				return (1);
 			pthread_mutex_lock(&philo->fork);
-			printf("%lld %d has taken a fork\n",
-				f_time(philo->args->start_time), philo->id);
+			if (print_status(philo, "has taken a fork"))
+				return (1);
 		}
 		else
 		{
 			pthread_mutex_lock(&philo->fork);
-			printf("%lld %d has taken a fork\n",
-				f_time(philo->args->start_time), philo->id);
+			if (print_status(philo, "has taken a fork"))
+				return (1);
 			pthread_mutex_lock(&next_philo->fork);
-			printf("%lld %d has taken a fork\n",
-				f_time(philo->args->start_time), philo->id);
+			if (print_status(philo, "has taken a fork"))
+				return (1);
 		}
 		philo->status = TAKEN_FORK;
 	}
@@ -61,8 +59,26 @@ int	check_taken_fork(t_philo *philo)
 	{
 		philo->status = EATING;
 		philo->timer_current = f_time(philo->args->start_time);
+		pthread_mutex_lock(&philo->timer_mutex);
 		philo->timer_life = philo->timer_current;
-		printf("%lld %d is eating\n", philo->timer_current, philo->id);
+		pthread_mutex_unlock(&philo->timer_mutex);
+		if (print_status(philo, "is eating"))
+			return (1);
+	}
+	return (0);
+}
+
+int	free_forks(t_philo *philo, t_philo *next_philo)
+{
+	if (philo->id % 2 == 0)
+	{
+		pthread_mutex_unlock(&philo->fork);
+		pthread_mutex_unlock(&next_philo->fork);
+	}
+	else
+	{
+		pthread_mutex_unlock(&next_philo->fork);
+		pthread_mutex_unlock(&philo->fork);
 	}
 	return (0);
 }
@@ -73,19 +89,14 @@ int	check_eating(t_philo *philo, t_philo *next_philo)
 		&& (f_time(philo->args->start_time) - philo->timer_current
 			>= philo->args->time_to_eat))
 	{
-		if (philo->id % 2 == 0)
-		{
-			pthread_mutex_unlock(&philo->fork);
-			pthread_mutex_unlock(&next_philo->fork);
-		}
-		else
-		{
-			pthread_mutex_unlock(&next_philo->fork);
-			pthread_mutex_unlock(&philo->fork);
-		}
+		free_forks(philo, next_philo);
 		philo->status = SLEEPING;
 		philo->timer_current = f_time(philo->args->start_time);
-		printf("%lld %d is sleeping\n", philo->timer_current, philo->id);
+		if (print_status(philo, "is sleeping"))
+		{
+			free_forks(philo, next_philo);
+			return (1);
+		}
 		philo->eat_count++;
 		if (philo->eat_count
 			== philo->args->number_of_times_each_philosopher_must_eat)
@@ -102,7 +113,8 @@ int	check_sleeping(t_philo *philo)
 	{
 		philo->status = THINKING;
 		philo->timer_current = f_time(philo->args->start_time);
-		printf("%lld %d is thinking\n", philo->timer_current, philo->id);
+		if (print_status(philo, "is thinking"))
+			return (1);
 	}
 	return (0);
 }

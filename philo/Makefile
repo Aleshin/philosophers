@@ -5,7 +5,7 @@ RM = rm -f
 NAME = philo
 HEADER = philo.h
 
-SRCS =	philo.c init.c check_status.c
+SRCS =	philo.c utils.c threads.c init.c check_status.c
 
 OBJS = $(SRCS:.c=.o)
 

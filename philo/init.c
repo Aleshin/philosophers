@@ -16,7 +16,7 @@ int	init_args(int argc, char **argv, t_args *args)
 {
 	if (argc != 5 && argc != 6)
 	{
-		printf("Need arguments:\n"
+		printf("Wrong # of args! Need:\n"
 			"number_of_philosophers\n"
 			"time_to_die\n"
 			"time_to_eat\n"
@@ -24,16 +24,18 @@ int	init_args(int argc, char **argv, t_args *args)
 			"<number_of_times_each_philosopher_must_eat>\n");
 		return (1);
 	}
-	args->number_of_philosophers = atoi(argv[1]);
-	args->time_to_die = atoi(argv[2]);
-	args->time_to_eat = atoi(argv[3]);
-	args->time_to_sleep = atoi(argv[4]);
+	if (check_args(argc, argv))
+		return (1);
+	args->number_of_philosophers = ft_atoi(argv[1]);
+	args->time_to_die = ft_atoi(argv[2]);
+	args->time_to_eat = ft_atoi(argv[3]);
+	args->time_to_sleep = ft_atoi(argv[4]);
 	args->start_time = 0;
 	args->start_time = f_time(args->start_time);
 	args->number_of_times_each_philosopher_must_eat = 0;
 	pthread_mutex_init(&args->mutex_global, NULL);
 	if (argc == 6)
-		args->number_of_times_each_philosopher_must_eat = atoi(argv[5]);
+		args->number_of_times_each_philosopher_must_eat = ft_atoi(argv[5]);
 	return (0);
 }
 
@@ -49,12 +51,13 @@ int	init_philo(t_philo *philosophers, t_args *args)
 		philosophers[i].args = args;
 		philosophers[i].eat_count = 0;
 		pthread_mutex_init(&philosophers[i].fork, NULL);
+		pthread_mutex_init(&philosophers[i].timer_mutex, NULL);
 		i++;
 	}
 	return (0);
 }
 
-int	init_threads(t_philo *philosophers, pthread_t *threads, t_args *args)
+int	init_threads(t_philo *philosophers, t_args *args)
 {
 	int	i;
 
@@ -63,8 +66,9 @@ int	init_threads(t_philo *philosophers, pthread_t *threads, t_args *args)
 	{
 		philosophers[i].timer_life = f_time(args->start_time);
 		philosophers[i].timer_current = philosophers[i].timer_life;
-		pthread_create(&threads[i], NULL, philosopher_routine, &philosophers[i]);
+		pthread_create(&philosophers[i].thread_philo, NULL, philo_routine, &philosophers[i]);
 		i++;
 	}
+	pthread_create(&args->thread_monitor, NULL, monitor, &philosophers[0]);
 	return (0);
 }

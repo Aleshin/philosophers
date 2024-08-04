@@ -31,36 +31,43 @@ enum e_status
 typedef struct args
 {
 	int				number_of_philosophers;
-	long long		time_to_die;
-	long long		time_to_eat;
-	long long		time_to_sleep;
-	long long		start_time;
+	size_t			time_to_die;
+	size_t			time_to_eat;
+	size_t			time_to_sleep;
+	size_t			start_time;
 	int				number_of_times_each_philosopher_must_eat;
 	int				end;
 	pthread_mutex_t	mutex_global;
+	pthread_t		thread_monitor;
 }	t_args;
 
 typedef struct philo
 {
 	int				id;
 	pthread_mutex_t	fork;
-	long long		timer_life;
-	long long		timer_current;
+	pthread_mutex_t	timer_mutex;
+	pthread_t		thread_philo;
+	size_t			timer_life;
+	size_t			timer_current;
 	int				status;
 	int				eat_count;
 	t_args			*args;
 }	t_philo;
 
-long long	f_time(long long start_time);
+size_t		f_time(size_t start_time);
+int			check_args(int argc, char **argv);
+unsigned	int	ft_atoi(char *str);
+int			print_status(t_philo *philo, char *status);
 int			init_args(int argc, char **argv, t_args *args);
 int			init_philo(t_philo *philosophers, t_args *args);
-int			init_threads(t_philo *philosophers,
-				pthread_t *threads, t_args *args);
+int			init_threads(t_philo *philosophers, t_args *args);
 int			take_forks(t_philo *philo, t_philo *next_philo);
-int			check_dead(t_philo *philo);
+int			check_end(t_philo *philo);
 int			check_taken_fork(t_philo *philo);
+int			free_forks(t_philo *philo, t_philo *next_philo);
 int			check_eating(t_philo *philo, t_philo *next_philo);
 int			check_sleeping(t_philo *philo);
-void		*philosopher_routine(void *data);
+void		*philo_routine(void *data);
+void		*monitor(void *data);
 
 #endif
