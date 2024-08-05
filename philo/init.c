@@ -33,6 +33,7 @@ int	init_args(int argc, char **argv, t_args *args)
 	args->start_time = 0;
 	args->start_time = f_time(args->start_time);
 	args->number_of_times_each_philosopher_must_eat = 0;
+	args->philos_finished = 0;
 	pthread_mutex_init(&args->mutex_global, NULL);
 	if (argc == 6)
 		args->number_of_times_each_philosopher_must_eat = ft_atoi(argv[5]);
@@ -70,5 +71,20 @@ int	init_threads(t_philo *philosophers, t_args *args)
 		i++;
 	}
 	pthread_create(&args->thread_monitor, NULL, monitor, &philosophers[0]);
+	return (0);
+}
+
+int	finish_threads(t_philo *philosophers, t_args *args)
+{
+	int	i;
+
+	i = 0;
+	while (i < args->number_of_philosophers)
+	{
+		pthread_join(philosophers[i].thread_philo, NULL);
+		pthread_mutex_destroy(&philosophers[i].fork);
+		pthread_mutex_destroy(&philosophers[i].timer_mutex);
+		i++;
+	}
 	return (0);
 }

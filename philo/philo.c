@@ -16,7 +16,6 @@ int	main(int argc, char **argv)
 {
 	t_philo		*philosophers;
 	t_args		*args;
-	int			i;
 
 	args = malloc(sizeof(t_args));
 	if (init_args(argc, argv, args))
@@ -27,16 +26,8 @@ int	main(int argc, char **argv)
 	philosophers = malloc(args->number_of_philosophers * sizeof(t_philo));
 	init_philo(philosophers, args);
 	init_threads(philosophers, args);
-	i = 0;
-	while (i < args->number_of_philosophers)
-	{
-		pthread_join(philosophers[i].thread_philo, NULL);
-		pthread_mutex_destroy(&philosophers[i].fork);
-		pthread_mutex_destroy(&philosophers[i].timer_mutex);
-		i++;
-	}
+	finish_threads(philosophers, args);
 	pthread_join(args->thread_monitor, NULL);
-	printf("%d philosophers died\n", args->end);
 	pthread_mutex_destroy(&args->mutex_global);
 	free(philosophers);
 	free(args);

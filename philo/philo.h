@@ -36,6 +36,7 @@ typedef struct args
 	size_t			time_to_sleep;
 	size_t			start_time;
 	int				number_of_times_each_philosopher_must_eat;
+	int				philos_finished;
 	int				end;
 	pthread_mutex_t	mutex_global;
 	pthread_t		thread_monitor;
@@ -61,6 +62,7 @@ int			print_status(t_philo *philo, char *status);
 int			init_args(int argc, char **argv, t_args *args);
 int			init_philo(t_philo *philosophers, t_args *args);
 int			init_threads(t_philo *philosophers, t_args *args);
+int			finish_threads(t_philo *philosophers, t_args *args);
 int			take_forks(t_philo *philo, t_philo *next_philo);
 int			check_end(t_philo *philo);
 int			check_taken_fork(t_philo *philo);

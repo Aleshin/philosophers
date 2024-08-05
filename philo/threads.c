@@ -25,8 +25,6 @@ void	*philo_routine(void *data)
 	printf("%zu %d is thinking\n", f_time(philo->args->start_time), philo->id);
 	while (1)
 	{
-//		if (check_end(philo))
-//			return (NULL);
 		if (take_forks(philo, next_philo))
 			return (NULL);
 		if (check_taken_fork(philo))
@@ -35,6 +33,7 @@ void	*philo_routine(void *data)
 			return (NULL);
 		if (check_sleeping(philo))
 			return (NULL);
+		usleep(400);
 	}
 	return (NULL);
 }
@@ -49,21 +48,26 @@ void	*monitor(void *data)
 	while (1)
 	{
 		pthread_mutex_lock(&philo[i].timer_mutex);
-		if (f_time(philo->args->start_time) - philo[i].timer_life
+		if (f_time(philo[0].args->start_time) - philo[i].timer_life
 			>= philo[i].args->time_to_die)
 		{
 			pthread_mutex_unlock(&philo[i].timer_mutex);
-			pthread_mutex_lock(&philo->args->mutex_global);
-			philo->args->end++;
-			pthread_mutex_unlock(&philo->args->mutex_global);
-//			pthread_mutex_lock(&philo[i].fork);
-//			philo->status = DEAD;
-//			pthread_mutex_unlock(&philo->fork);
-			printf("%zu %d died\n", f_time(philo->args->start_time), philo[i].id);
+			pthread_mutex_lock(&philo[0].args->mutex_global);
+			philo[0].args->end++;
+			pthread_mutex_unlock(&philo[0].args->mutex_global);
+			printf("%zu %d died\n", f_time(philo[0].args->start_time), philo[i].id);
 			return (NULL);
 		} else
 			pthread_mutex_unlock(&philo[i].timer_mutex);
+		pthread_mutex_lock(&philo[0].args->mutex_global);
+		if (philo[0].args->philos_finished == philo[0].args->number_of_philosophers)
+		{
+			pthread_mutex_unlock(&philo[0].args->mutex_global);
+			return (NULL);
+		} else
+			pthread_mutex_unlock(&philo[0].args->mutex_global);
 		i = (i + 1) % philo->args->number_of_philosophers;
+		usleep(200);
 	}
 	return (NULL);
 }
