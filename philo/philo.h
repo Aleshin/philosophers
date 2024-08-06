@@ -61,6 +61,7 @@ unsigned	int	ft_atoi(char *str);
 int			print_status(t_philo *philo, char *status);
 int			init_args(int argc, char **argv, t_args *args);
 int			init_philo(t_philo *philosophers, t_args *args);
+int			one_philo(t_args *args);
 int			init_threads(t_philo *philosophers, t_args *args);
 int			finish_threads(t_philo *philosophers, t_args *args);
 int			take_forks(t_philo *philo, t_philo *next_philo);

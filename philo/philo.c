@@ -18,7 +18,7 @@ int	main(int argc, char **argv)
 	t_args		*args;
 
 	args = malloc(sizeof(t_args));
-	if (init_args(argc, argv, args))
+	if (init_args(argc, argv, args) || one_philo(args))
 	{
 		free(args);
 		return (1);
@@ -27,9 +27,5 @@ int	main(int argc, char **argv)
 	init_philo(philosophers, args);
 	init_threads(philosophers, args);
 	finish_threads(philosophers, args);
-	pthread_join(args->thread_monitor, NULL);
-	pthread_mutex_destroy(&args->mutex_global);
-	free(philosophers);
-	free(args);
 	return (0);
 }

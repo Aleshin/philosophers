@@ -74,6 +74,18 @@ int	init_threads(t_philo *philosophers, t_args *args)
 	return (0);
 }
 
+int	one_philo(t_args *args)
+{
+	if (args->number_of_philosophers == 1)
+	{
+		printf("%d 1 has taken a fork\n", 0);
+		usleep(args->time_to_die * 1000);
+		printf("%zu 1 died\n", args->time_to_die);
+		return (1);
+	}
+	return (0);
+}
+
 int	finish_threads(t_philo *philosophers, t_args *args)
 {
 	int	i;
@@ -86,5 +98,9 @@ int	finish_threads(t_philo *philosophers, t_args *args)
 		pthread_mutex_destroy(&philosophers[i].timer_mutex);
 		i++;
 	}
+	pthread_join(args->thread_monitor, NULL);
+	pthread_mutex_destroy(&args->mutex_global);
+	free(philosophers);
+	free(args);
 	return (0);
 }
