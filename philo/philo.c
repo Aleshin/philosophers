@@ -24,6 +24,7 @@ int	main(int argc, char **argv)
 		return (1);
 	}
 	philosophers = malloc(args->number_of_philosophers * sizeof(t_philo));
+	pthread_mutex_lock(&args->mutex_global);
 	init_philo(philosophers, args);
 	init_threads(philosophers, args);
 	finish_threads(philosophers, args);
