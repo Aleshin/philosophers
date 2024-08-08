@@ -22,12 +22,8 @@ void	*philo_routine(void *data)
 		next_philo = (philo - philo->args->number_of_philosophers + 1);
 	else
 		next_philo = (philo + 1);
-	pthread_mutex_lock(&philo->args->mutex_global);
-	pthread_mutex_unlock(&philo->args->mutex_global);
-	if (philo->id % 2 == 0)
-		usleep(200);
 	printf("%zu %d is thinking\n", f_time(philo->args->start_time), philo->id);
-	while (1)
+	while (philo->args->end == 0)
 	{
 		if (take_forks(philo, next_philo))
 			return (NULL);
@@ -49,8 +45,6 @@ void	*monitor(void *data)
 
 	philo = (t_philo *)data;
 	i = 0;
-	pthread_mutex_lock(&philo->args->mutex_global);
-	pthread_mutex_unlock(&philo->args->mutex_global);
 	while (1)
 	{
 		pthread_mutex_lock(&philo[0].args->mutex_global);

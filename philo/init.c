@@ -71,7 +71,6 @@ int	init_threads(t_philo *philosophers, t_args *args)
 		i++;
 	}
 	pthread_create(&args->thread_monitor, NULL, monitor, &philosophers[0]);
-	pthread_mutex_unlock(&args->mutex_global);
 	return (0);
 }
 
