@@ -33,6 +33,7 @@ int	init_args(int argc, char **argv, t_args *args)
 	args->start_time = 0;
 	args->start_time = f_time(args->start_time);
 	args->number_of_times_each_philosopher_must_eat = 0;
+	args->end = 0;
 	args->philos_finished = 0;
 	pthread_mutex_init(&args->mutex_global, NULL);
 	if (argc == 6)
@@ -67,7 +68,8 @@ int	init_threads(t_philo *philosophers, t_args *args)
 	{
 		philosophers[i].timer_life = f_time(args->start_time);
 		philosophers[i].timer_current = philosophers[i].timer_life;
-		pthread_create(&philosophers[i].thread_philo, NULL, philo_routine, &philosophers[i]);
+		pthread_create(&philosophers[i].thread_philo,
+			NULL, philo_routine, &philosophers[i]);
 		i++;
 	}
 	pthread_create(&args->thread_monitor, NULL, monitor, &philosophers[0]);

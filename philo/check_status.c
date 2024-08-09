@@ -51,6 +51,8 @@ int	check_taken_fork(t_philo *philo)
 
 int	free_forks(t_philo *philo, t_philo *next_philo)
 {
+	if (philo->status != EATING)
+		return (0);
 	if (philo->id % 2 != 0)
 	{
 		pthread_mutex_unlock(&philo->fork);
