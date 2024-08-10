@@ -63,7 +63,7 @@ int			init_args(int argc, char **argv, t_args *args);
 int			init_philo(t_philo *philosophers, t_args *args);
 int			one_philo(t_args *args);
 int			init_threads(t_philo *philosophers, t_args *args);
-int			finish_threads(t_philo *philosophers, t_args *args);
+int			finish_threads(t_philo *philosophers, t_args *args, int f);
 int			take_forks(t_philo *philo, t_philo *next_philo);
 int			check_end(t_philo *philo);
 int			check_taken_fork(t_philo *philo);

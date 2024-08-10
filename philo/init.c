@@ -68,12 +68,14 @@ int	init_threads(t_philo *philosophers, t_args *args)
 	{
 		philosophers[i].timer_life = f_time(args->start_time);
 		philosophers[i].timer_current = philosophers[i].timer_life;
-		pthread_create(&philosophers[i].thread_philo,
-			NULL, philo_routine, &philosophers[i]);
+		if (pthread_create(&philosophers[i].thread_philo,
+				NULL, philo_routine, &philosophers[i]))
+			return (i);
+		if (i == 3)
+			return (i);
 		i++;
 	}
-	pthread_create(&args->thread_monitor, NULL, monitor, &philosophers[0]);
-	return (0);
+	return (-1);
 }
 
 int	one_philo(t_args *args)
@@ -88,19 +90,18 @@ int	one_philo(t_args *args)
 	return (0);
 }
 
-int	finish_threads(t_philo *philosophers, t_args *args)
+int	finish_threads(t_philo *philosophers, t_args *args, int f)
 {
 	int	i;
 
 	i = 0;
-	while (i < args->number_of_philosophers)
+	while (i < f)
 	{
 		pthread_join(philosophers[i].thread_philo, NULL);
 		pthread_mutex_destroy(&philosophers[i].fork);
 		pthread_mutex_destroy(&philosophers[i].timer_mutex);
 		i++;
 	}
-	pthread_join(args->thread_monitor, NULL);
 	pthread_mutex_destroy(&args->mutex_global);
 	free(philosophers);
 	free(args);

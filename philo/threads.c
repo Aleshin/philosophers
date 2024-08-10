@@ -40,10 +40,24 @@ void	*philo_routine(void *data)
 	return (NULL);
 }
 
+int	check_dead(t_philo *philo, int i)
+{
+	pthread_mutex_lock(&philo[i].timer_mutex);
+	if (f_time(philo[0].args->start_time) - philo[i].timer_life
+		>= philo[0].args->time_to_die)
+	{
+		print_status(philo, "died");
+		pthread_mutex_unlock(&philo[i].timer_mutex);
+		return (1);
+	}
+	pthread_mutex_unlock(&philo[i].timer_mutex);
+	return (0);
+}
+
 void	*monitor(void *data)
 {
-	int		i;
 	t_philo	*philo;
+	int		i;
 
 	philo = (t_philo *)data;
 	i = 0;
@@ -52,21 +66,16 @@ void	*monitor(void *data)
 		pthread_mutex_lock(&philo[0].args->mutex_global);
 		if (philo[0].args->philos_finished
 			== philo[0].args->number_of_philosophers)
-			break ;
-		pthread_mutex_unlock(&philo[0].args->mutex_global);
-		pthread_mutex_lock(&philo[i].timer_mutex);
-		if (f_time(philo[0].args->start_time) - philo[i].timer_life
-			>= philo[0].args->time_to_die)
 		{
-//			printf("%zu %d died\n", f_time(philo[0].args->start_time), philo[i].id);
-			print_status(philo, "died");
-			pthread_mutex_unlock(&philo[i].timer_mutex);
-			pthread_mutex_lock(&philo[0].args->mutex_global);
+			pthread_mutex_unlock(&philo[0].args->mutex_global);
 			break ;
 		}
-		pthread_mutex_unlock(&philo[i].timer_mutex);
-		i = (i + 1) % philo[0].args->number_of_philosophers;
+		pthread_mutex_unlock(&philo[0].args->mutex_global);
+		if (check_dead(philo, i))
+			break ;
+		i = (i + 1) % philo->args->number_of_philosophers;
 	}
+	pthread_mutex_lock(&philo[0].args->mutex_global);
 	philo[0].args->end++;
 	pthread_mutex_unlock(&philo[0].args->mutex_global);
 	return (NULL);
