@@ -14,29 +14,24 @@
 
 int	main(int argc, char **argv)
 {
-	t_philo		*philosophers;
+	t_philo		*philos;
 	t_args		*args;
 	int			f;
 
 	args = malloc(sizeof(t_args));
+	if (!args)
+		return (1);
 	if (init_args(argc, argv, args) || one_philo(args))
 	{
 		free(args);
 		return (1);
 	}
-	philosophers = malloc(args->number_of_philosophers * sizeof(t_philo));
-	init_philo(philosophers, args);
-	f = init_threads(philosophers, args);
-	if (f != -1)
-	{
-		pthread_mutex_lock(&philosophers->args->mutex_global);
-		args->end++;
-		pthread_mutex_unlock(&philosophers->args->mutex_global);
-		finish_threads(philosophers, args, f);
-		return (0);
-	}
-	if (!pthread_create(&args->thread_monitor, NULL, monitor, &philosophers[0]))
-		pthread_join(args->thread_monitor, NULL);
-	finish_threads(philosophers, args, args->number_of_philosophers);
+	philos = malloc(args->number_of_philosophers * sizeof(t_philo));
+	if (!philos)
+		return (1);
+	init_philo(philos, args);
+	f = init_threads(philos, args);
+	if (thread_errors(philos, args, f))
+		finish_threads(philos, args, args->number_of_philosophers);
 	return (0);
 }

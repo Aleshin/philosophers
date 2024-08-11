@@ -71,8 +71,6 @@ int	init_threads(t_philo *philosophers, t_args *args)
 		if (pthread_create(&philosophers[i].thread_philo,
 				NULL, philo_routine, &philosophers[i]))
 			return (i);
-		if (i == 3)
-			return (i);
 		i++;
 	}
 	return (-1);

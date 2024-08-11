@@ -71,3 +71,26 @@ int	print_status(t_philo *philo, char *status)
 	pthread_mutex_unlock(&philo->args->mutex_global);
 	return (0);
 }
+
+int	thread_errors(t_philo *philo, t_args *args, int f)
+{
+	if (f != -1)
+	{
+		pthread_mutex_lock(&philo->args->mutex_global);
+		printf ("Threads creating error\n");
+		args->end++;
+		pthread_mutex_unlock(&philo->args->mutex_global);
+		finish_threads(philo, args, f);
+		return (1);
+	}
+	if (pthread_create(&args->thread_monitor, NULL, monitor, &philo[0]))
+	{
+		pthread_mutex_lock(&philo->args->mutex_global);
+		printf ("Monitor creating error\n");
+		args->end++;
+		pthread_mutex_unlock(&philo->args->mutex_global);
+		finish_threads(philo, args, args->number_of_philosophers);
+		return (1);
+	}
+	return (0);
+}

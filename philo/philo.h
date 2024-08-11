@@ -72,5 +72,6 @@ int			check_eating(t_philo *philo, t_philo *next_philo);
 int			check_sleeping(t_philo *philo);
 void		*philo_routine(void *data);
 void		*monitor(void *data);
+int			thread_errors(t_philo *philo, t_args *args, int f);
 
 #endif
