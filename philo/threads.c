@@ -35,6 +35,7 @@ void	*philo_routine(void *data)
 		check_taken_fork(philo);
 		check_eating(philo, next_philo);
 		check_sleeping(philo);
+		usleep(400);
 	}
 	free_forks(philo, next_philo);
 	return (NULL);
@@ -73,6 +74,7 @@ void	*monitor(void *data)
 		pthread_mutex_unlock(&philo[0].args->mutex_global);
 		if (check_dead(philo, i))
 			break ;
+		usleep(200);
 		i = (i + 1) % philo->args->number_of_philosophers;
 	}
 	pthread_mutex_lock(&philo[0].args->mutex_global);

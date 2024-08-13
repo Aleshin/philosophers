@@ -81,7 +81,7 @@ int	thread_errors(t_philo *philo, t_args *args, int f)
 		args->end++;
 		pthread_mutex_unlock(&philo->args->mutex_global);
 		finish_threads(philo, args, f);
-		return (1);
+		return (0);
 	}
 	if (pthread_create(&args->thread_monitor, NULL, monitor, &philo[0]))
 	{
@@ -90,7 +90,8 @@ int	thread_errors(t_philo *philo, t_args *args, int f)
 		args->end++;
 		pthread_mutex_unlock(&philo->args->mutex_global);
 		finish_threads(philo, args, args->number_of_philosophers);
-		return (1);
+		return (0);
 	}
-	return (0);
+	pthread_join(args->thread_monitor, NULL);
+	return (1);
 }

@@ -94,8 +94,10 @@ int	finish_threads(t_philo *philosophers, t_args *args, int f)
 
 	i = 0;
 	while (i < f)
+		pthread_join(philosophers[i++].thread_philo, NULL);
+	i = 0;
+	while (i < f)
 	{
-		pthread_join(philosophers[i].thread_philo, NULL);
 		pthread_mutex_destroy(&philosophers[i].fork);
 		pthread_mutex_destroy(&philosophers[i].timer_mutex);
 		i++;
