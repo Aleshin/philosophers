@@ -12,6 +12,29 @@
 
 #include "philo.h"
 
+int	init_timer(t_philo *philo)
+{
+	pthread_mutex_lock(&philo->args->mutex_global);
+	pthread_mutex_unlock(&philo->args->mutex_global);
+	pthread_mutex_lock(&philo->timer_mutex);
+	philo->timer_life = f_time(philo->args->start_time);
+	philo->timer_current = philo->timer_life;
+	pthread_mutex_unlock(&philo->timer_mutex);
+	return (0);
+}
+
+int	check_end(t_philo *philo)
+{
+	pthread_mutex_lock(&philo->args->mutex_global);
+	if (philo->args->end > 0)
+	{
+		pthread_mutex_unlock(&philo[0].args->mutex_global);
+		return (1);
+	}
+	pthread_mutex_unlock(&philo[0].args->mutex_global);
+	return (0);
+}
+
 void	*philo_routine(void *data)
 {
 	t_philo	*philo;
@@ -22,20 +45,16 @@ void	*philo_routine(void *data)
 		next_philo = (philo - philo->args->number_of_philosophers + 1);
 	else
 		next_philo = (philo + 1);
+	init_timer(philo);
 	while (1)
 	{
-		pthread_mutex_lock(&philo[0].args->mutex_global);
-		if (philo->args->end > 0)
-		{
-			pthread_mutex_unlock(&philo[0].args->mutex_global);
+		if (check_end(philo))
 			break ;
-		}
-		pthread_mutex_unlock(&philo[0].args->mutex_global);
 		take_forks(philo, next_philo);
 		check_taken_fork(philo);
 		check_eating(philo, next_philo);
 		check_sleeping(philo);
-		usleep(400);
+//		usleep(200);
 	}
 	free_forks(philo, next_philo);
 	return (NULL);
@@ -74,7 +93,7 @@ void	*monitor(void *data)
 		pthread_mutex_unlock(&philo[0].args->mutex_global);
 		if (check_dead(philo, i))
 			break ;
-		usleep(200);
+//		usleep(100);
 		i = (i + 1) % philo->args->number_of_philosophers;
 	}
 	pthread_mutex_lock(&philo[0].args->mutex_global);

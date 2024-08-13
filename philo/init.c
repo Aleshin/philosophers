@@ -31,7 +31,7 @@ int	init_args(int argc, char **argv, t_args *args)
 	args->time_to_eat = ft_atoi(argv[3]);
 	args->time_to_sleep = ft_atoi(argv[4]);
 	args->start_time = 0;
-	args->start_time = f_time(args->start_time);
+//	args->start_time = f_time(args->start_time);
 	args->number_of_times_each_philosopher_must_eat = 0;
 	args->end = 0;
 	args->philos_finished = 0;
@@ -66,8 +66,8 @@ int	init_threads(t_philo *philosophers, t_args *args)
 	i = 0;
 	while (i < args->number_of_philosophers)
 	{
-		philosophers[i].timer_life = f_time(args->start_time);
-		philosophers[i].timer_current = philosophers[i].timer_life;
+//		philosophers[i].timer_life = f_time(args->start_time);
+//		philosophers[i].timer_current = philosophers[i].timer_life;
 		if (pthread_create(&philosophers[i].thread_philo,
 				NULL, philo_routine, &philosophers[i]))
 			return (i);

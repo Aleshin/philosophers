@@ -30,7 +30,10 @@ int	main(int argc, char **argv)
 	if (!philos)
 		return (1);
 	init_philo(philos, args);
+	pthread_mutex_lock(&philos[0].args->mutex_global);
 	f = init_threads(philos, args);
+	args->start_time = f_time(args->start_time);
+	pthread_mutex_unlock(&philos[0].args->mutex_global);
 	if (thread_errors(philos, args, f))
 		finish_threads(philos, args, args->number_of_philosophers);
 	return (0);
