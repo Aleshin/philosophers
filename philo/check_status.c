@@ -14,9 +14,9 @@
 
 int	take_forks(t_philo *philo, t_philo *next_philo)
 {
-	if (philo->status == THINKING)
-	{
-		if (philo->id % 2 != 0)
+//	if (philo->status == THINKING)
+//	{
+		if (philo->id % 2 == 0)
 		{
 			pthread_mutex_lock(&next_philo->fork);
 			print_status(philo, "has taken a fork");
@@ -31,21 +31,22 @@ int	take_forks(t_philo *philo, t_philo *next_philo)
 			print_status(philo, "has taken a fork");
 		}
 		philo->status = TAKEN_FORK;
-	}
+//	}
 	return (0);
 }
 
 int	check_taken_fork(t_philo *philo)
 {
-	if (philo->status == TAKEN_FORK)
-	{
+//	if (philo->status == TAKEN_FORK)
+//	{
 		philo->status = EATING;
 		pthread_mutex_lock(&philo->timer_mutex);
 		philo->timer_current = f_time(philo->args->start_time);
 		philo->timer_life = philo->timer_current;
 		pthread_mutex_unlock(&philo->timer_mutex);
 		print_status(philo, "is eating");
-	}
+		ft_usleep(philo->args->start_time, philo->args->time_to_eat);
+//	}
 	return (0);
 }
 
@@ -53,7 +54,7 @@ int	free_forks(t_philo *philo, t_philo *next_philo)
 {
 	if (philo->status != EATING)
 		return (0);
-	if (philo->id % 2 != 0)
+	if (philo->id % 2 == 0)
 	{
 		pthread_mutex_unlock(&philo->fork);
 		pthread_mutex_unlock(&next_philo->fork);
@@ -68,33 +69,34 @@ int	free_forks(t_philo *philo, t_philo *next_philo)
 
 int	check_eating(t_philo *philo, t_philo *next_philo)
 {
-	if (philo->status == EATING
-		&& (f_time(philo->args->start_time) - philo->timer_current
-			>= philo->args->time_to_eat))
-	{
+//	if (philo->status == EATING
+//		&& (f_time(philo->args->start_time) - philo->timer_current
+//			>= philo->args->time_to_eat))
+//	{
 		free_forks(philo, next_philo);
 		philo->status = SLEEPING;
 		philo->timer_current = f_time(philo->args->start_time);
 		print_status(philo, "is sleeping");
+		ft_usleep(philo->args->start_time, philo->args->time_to_sleep);
 		philo->eat_count++;
 		pthread_mutex_lock(&philo->args->mutex_global);
 		if (philo->eat_count
 			== philo->args->number_of_times_each_philosopher_must_eat)
 			philo->args->philos_finished++;
 		pthread_mutex_unlock(&philo->args->mutex_global);
-	}
+//	}
 	return (0);
 }
 
 int	check_sleeping(t_philo *philo)
 {
-	if (philo->status == SLEEPING
-		&& f_time(philo->args->start_time) - philo->timer_current
-		>= philo->args->time_to_sleep)
-	{
+//	if (philo->status == SLEEPING
+//		&& f_time(philo->args->start_time) - philo->timer_current
+//		>= philo->args->time_to_sleep)
+//	{
 		philo->status = THINKING;
 		philo->timer_current = f_time(philo->args->start_time);
 		print_status(philo, "is thinking");
-	}
+//	}
 	return (0);
 }

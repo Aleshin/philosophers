@@ -20,6 +20,15 @@ size_t	f_time(size_t start_time)
 	return (tv.tv_sec * 1000 + tv.tv_usec / 1000 - start_time);
 }
 
+void	ft_usleep(size_t start_time, int millisec)
+{
+	size_t	end;
+
+	end = f_time(start_time) + millisec;
+	while (f_time(start_time) < end)
+		usleep(200);
+}
+
 //returns 0 if number is 0, negative or not number
 unsigned	int	ft_atoi(char *str)
 {
@@ -76,7 +85,7 @@ int	thread_errors(t_philo *philo, t_args *args, int f)
 {
 	if (f != -1)
 	{
-		pthread_mutex_lock(&philo->args->mutex_global);
+//		pthread_mutex_lock(&philo->args->mutex_global);
 		printf ("Threads creating error\n");
 		args->end++;
 		pthread_mutex_unlock(&philo->args->mutex_global);
@@ -85,13 +94,12 @@ int	thread_errors(t_philo *philo, t_args *args, int f)
 	}
 	if (pthread_create(&args->thread_monitor, NULL, monitor, &philo[0]))
 	{
-		pthread_mutex_lock(&philo->args->mutex_global);
+//		pthread_mutex_lock(&philo->args->mutex_global);
 		printf ("Monitor creating error\n");
 		args->end++;
 		pthread_mutex_unlock(&philo->args->mutex_global);
 		finish_threads(philo, args, args->number_of_philosophers);
 		return (0);
 	}
-	pthread_join(args->thread_monitor, NULL);
 	return (1);
 }

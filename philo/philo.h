@@ -56,6 +56,7 @@ typedef struct philo
 }	t_philo;
 
 size_t		f_time(size_t start_time);
+void		ft_usleep(size_t start_time, int millisec);
 int			check_args(int argc, char **argv);
 unsigned	int	ft_atoi(char *str);
 int			print_status(t_philo *philo, char *status);

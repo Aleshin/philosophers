@@ -16,6 +16,7 @@ int	init_timer(t_philo *philo)
 {
 	pthread_mutex_lock(&philo->args->mutex_global);
 	pthread_mutex_unlock(&philo->args->mutex_global);
+	printf("-----------------%d start at %zu\n", philo->id, f_time(0));//philo->args->start_time));
 	pthread_mutex_lock(&philo->timer_mutex);
 	philo->timer_life = f_time(philo->args->start_time);
 	philo->timer_current = philo->timer_life;
@@ -45,7 +46,18 @@ void	*philo_routine(void *data)
 		next_philo = (philo - philo->args->number_of_philosophers + 1);
 	else
 		next_philo = (philo + 1);
-	init_timer(philo);
+	pthread_mutex_lock(&philo->args->mutex_global);
+	pthread_mutex_unlock(&philo->args->mutex_global);
+//	printf("-----------------%d start at %zu\n", philo->id, f_time(0));//philo->args->start_time));
+	pthread_mutex_lock(&philo->timer_mutex);
+	philo->timer_life = f_time(philo->args->start_time);
+	philo->timer_current = philo->timer_life;
+	pthread_mutex_unlock(&philo->timer_mutex);
+
+//	init_timer(philo);
+//	return (NULL);
+	if (philo->id % 2 == 0 || philo->id == philo->args->number_of_philosophers)
+		usleep(100);
 	while (1)
 	{
 		if (check_end(philo))
