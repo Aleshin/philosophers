@@ -39,6 +39,9 @@ typedef struct args
 	int				philos_finished;
 	int				end;
 	pthread_mutex_t	mutex_global;
+	pthread_mutex_t	mutex_print;
+	pthread_mutex_t	mutex_end;
+	pthread_mutex_t	mutex_eat;
 	pthread_t		thread_monitor;
 }	t_args;
 
@@ -56,7 +59,7 @@ typedef struct philo
 }	t_philo;
 
 size_t		f_time(size_t start_time);
-void		ft_usleep(size_t start_time, int millisec);
+void		ft_usleep(int millisec);
 int			check_args(int argc, char **argv);
 unsigned	int	ft_atoi(char *str);
 int			print_status(t_philo *philo, char *status);
@@ -66,11 +69,9 @@ int			one_philo(t_args *args);
 int			init_threads(t_philo *philosophers, t_args *args);
 int			finish_threads(t_philo *philosophers, t_args *args, int f);
 int			take_forks(t_philo *philo, t_philo *next_philo);
-int			check_end(t_philo *philo);
 int			check_taken_fork(t_philo *philo);
 int			free_forks(t_philo *philo, t_philo *next_philo);
 int			check_eating(t_philo *philo, t_philo *next_philo);
-int			check_sleeping(t_philo *philo);
 void		*philo_routine(void *data);
 void		*monitor(void *data);
 int			thread_errors(t_philo *philo, t_args *args, int f);

@@ -16,23 +16,10 @@ int	init_timer(t_philo *philo)
 {
 	pthread_mutex_lock(&philo->args->mutex_global);
 	pthread_mutex_unlock(&philo->args->mutex_global);
-	printf("-----------------%d start at %zu\n", philo->id, f_time(0));//philo->args->start_time));
 	pthread_mutex_lock(&philo->timer_mutex);
 	philo->timer_life = f_time(philo->args->start_time);
 	philo->timer_current = philo->timer_life;
 	pthread_mutex_unlock(&philo->timer_mutex);
-	return (0);
-}
-
-int	check_end(t_philo *philo)
-{
-	pthread_mutex_lock(&philo->args->mutex_global);
-	if (philo->args->end > 0)
-	{
-		pthread_mutex_unlock(&philo[0].args->mutex_global);
-		return (1);
-	}
-	pthread_mutex_unlock(&philo[0].args->mutex_global);
 	return (0);
 }
 
@@ -40,35 +27,28 @@ void	*philo_routine(void *data)
 {
 	t_philo	*philo;
 	t_philo	*next_philo;
+	int		end;
 
 	philo = (t_philo *)data;
 	if (philo->id == philo->args->number_of_philosophers)
 		next_philo = (philo - philo->args->number_of_philosophers + 1);
 	else
 		next_philo = (philo + 1);
-	pthread_mutex_lock(&philo->args->mutex_global);
-	pthread_mutex_unlock(&philo->args->mutex_global);
-//	printf("-----------------%d start at %zu\n", philo->id, f_time(0));//philo->args->start_time));
-	pthread_mutex_lock(&philo->timer_mutex);
-	philo->timer_life = f_time(philo->args->start_time);
-	philo->timer_current = philo->timer_life;
-	pthread_mutex_unlock(&philo->timer_mutex);
-
-//	init_timer(philo);
-//	return (NULL);
-	if (philo->id % 2 == 0 || philo->id == philo->args->number_of_philosophers)
-		usleep(100);
-	while (1)
+	init_timer(philo);
+	if (philo->id % 2 == 0)
+		ft_usleep(1);
+	pthread_mutex_lock(&philo->args->mutex_end);
+	end = philo->args->end;
+	pthread_mutex_unlock(&philo[0].args->mutex_end);
+	while (end == 0)
 	{
-		if (check_end(philo))
-			break ;
 		take_forks(philo, next_philo);
 		check_taken_fork(philo);
 		check_eating(philo, next_philo);
-		check_sleeping(philo);
-//		usleep(200);
+		pthread_mutex_lock(&philo->args->mutex_end);
+		end = philo->args->end;
+		pthread_mutex_unlock(&philo[0].args->mutex_end);
 	}
-	free_forks(philo, next_philo);
 	return (NULL);
 }
 
@@ -93,23 +73,47 @@ void	*monitor(void *data)
 
 	philo = (t_philo *)data;
 	i = 0;
+	pthread_mutex_lock(&philo->args->mutex_global);
+	pthread_mutex_unlock(&philo->args->mutex_global);
 	while (1)
 	{
-		pthread_mutex_lock(&philo[0].args->mutex_global);
-		if (philo[0].args->philos_finished
-			== philo[0].args->number_of_philosophers)
+		pthread_mutex_lock(&philo->args->mutex_eat);
+		if (philo->args->philos_finished
+			== philo->args->number_of_philosophers)
 		{
-			pthread_mutex_unlock(&philo[0].args->mutex_global);
+			pthread_mutex_unlock(&philo->args->mutex_eat);
 			break ;
 		}
-		pthread_mutex_unlock(&philo[0].args->mutex_global);
+		pthread_mutex_unlock(&philo->args->mutex_eat);
 		if (check_dead(philo, i))
 			break ;
-//		usleep(100);
 		i = (i + 1) % philo->args->number_of_philosophers;
 	}
-	pthread_mutex_lock(&philo[0].args->mutex_global);
-	philo[0].args->end++;
-	pthread_mutex_unlock(&philo[0].args->mutex_global);
+	pthread_mutex_lock(&philo->args->mutex_end);
+	philo->args->end++;
+	pthread_mutex_unlock(&philo->args->mutex_end);
 	return (NULL);
+}
+
+int	thread_errors(t_philo *philo, t_args *args, int f)
+{
+	if (f != -1)
+	{
+		printf ("Threads creating error\n");
+		args->end++;
+		pthread_mutex_unlock(&philo->args->mutex_global);
+		finish_threads(philo, args, f);
+		return (0);
+	}
+	if (pthread_create(&args->thread_monitor, NULL, monitor, &philo[0]))
+	{
+		printf ("Monitor creating error\n");
+		args->end++;
+		pthread_mutex_unlock(&philo->args->mutex_global);
+		finish_threads(philo, args, args->number_of_philosophers);
+		return (0);
+	}
+	args->start_time = f_time(args->start_time);
+	pthread_mutex_unlock(&philo->args->mutex_global);
+	return (1);
 }

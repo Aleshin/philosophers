@@ -31,11 +31,9 @@ int	main(int argc, char **argv)
 		return (1);
 	init_philo(philos, args);
 	pthread_mutex_lock(&philos->args->mutex_global);
-		args->start_time = f_time(args->start_time);
 	f = init_threads(philos, args);
 	if (thread_errors(philos, args, f))
 	{
-		pthread_mutex_unlock(&philos->args->mutex_global);
 		pthread_join(args->thread_monitor, NULL);
 		finish_threads(philos, args, args->number_of_philosophers);
 	}
